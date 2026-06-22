@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Jogo para minha chatinha ❤️</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="bg-gradient"></div>
+  <canvas id="starsCanvas"></canvas>
+
+  <!-- Gradientes SVG globais (usados pelo loading) -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#c48fff"/>
+        <stop offset="100%" stop-color="#ff5ca0"/>
+      </linearGradient>
+      <linearGradient id="ringGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#c48fff"/>
+        <stop offset="100%" stop-color="#ff5ca0"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <div class="container">
+
+    <!-- HOME -->
+    <section id="home" class="screen active">
+      <div class="card">
+        <img src="foto.jpg" class="home-photo" alt="" />
+        <div class="tag">para a mais chata desse mundo todo</div>
+        <h1>espero que você goste 💞</h1>
+        <p>Que você consiga se divertir e que consiga se sentir importante para mim e que se estresse também, gosto de ver você estressada um pouquinho kkkk</p>
+        <button class="btn-primary" onclick="startGame()">iniciar kkk</button>
+      </div>
+    </section>
+
+    <!-- JOGO -->
+    <section id="game" class="screen">
+      <div class="game-header">
+        <div class="game-header-top">
+          <div>
+            <div class="phase-label" id="phaseLabel">Fase 1 de 2</div>
+            <div id="phaseTitle" class="phase-title-inline">Pega os corações</div>
+          </div>
+          <div class="stats-inline">
+            <div class="stat-pill">
+              <span class="stat-label">Pontos</span>
+              <span class="stat-value" id="score">0</span>
+            </div>
+            <div class="stat-sep">/</div>
+            <div class="stat-pill">
+              <span class="stat-label">Meta</span>
+              <span class="stat-value" id="goalDisplay">100</span>
+            </div>
+            <div class="stat-pill stat-timer">
+              <span class="stat-label">Tempo</span>
+              <span class="stat-value" id="timer">30</span>
+            </div>
+          </div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar">
+            <div id="progress"></div>
+          </div>
+          <span id="progressPct">0%</span>
+        </div>
+        <p id="tipText"></p>
+      </div>
+      <canvas id="gameCanvas"></canvas>
+      <div class="phase-fade" id="phaseFade"></div>
+    </section>
+
+    <!-- MENSAGEM ENTRE FASES -->
+    <section id="message" class="screen">
+      <div class="card">
+        <div class="tag" id="messageTag">fase concluída</div>
+        <h2 id="messageTitle"></h2>
+        <p id="messageText"></p>
+        <button class="btn-primary" id="messageBtn"></button>
+      </div>
+    </section>
+
+    <!-- ESCOLHA -->
+    <section id="choice" class="screen">
+      <div class="card">
+        <div class="tag">pergunta importante 👀</div>
+        <h2>se você pudesse escolher um...</h2>
+        <p id="choiceSubtitle">pensa bem antes de responder 😏</p>
+        <div class="choice-row">
+          <div class="choice-option" id="choiceMarti" onclick="choosePlayer()">
+            <img src="martinelli.jpg" class="choice-photo" alt="Martinelli" />
+            <span class="choice-name">Gabriel Martinelli</span>
+          </div>
+          <div class="choice-option" id="choiceRuan" onclick="chooseMe()">
+            <img src="ruan.jpg" class="choice-photo" alt="Ruan" />
+            <span class="choice-name">Ruan Moura</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRAIÇÃO DETECTADA -->
+    <section id="traicao" class="screen">
+      <div class="traicao-overlay">
+        <div class="traicao-icon">🚨</div>
+        <div class="traicao-title">isso é traição amor 😥</div>
+        <div class="traicao-sub" id="traicaoSub">tentou o Martinelli 3 vezes...</div>
+      </div>
+    </section>
+
+    <!-- MEMORY -->
+    <section id="memory" class="screen">
+      <div class="memory-wrap">
+        <div class="memory-header">
+          <div class="tag">fase memory</div>
+          <p class="memory-info">Ache os 6 pares. Tempo: <span id="memoryTimer">45</span>s · Erros: <span id="memoryErrors">0</span></p>
+        </div>
+        <div class="memory-grid" id="memoryGrid"></div>
+      </div>
+    </section>
+
+    <!-- PERGUNTA DO ANEL (substitui a antiga fase de paciência) -->
+    <section id="ringQuestion" class="screen">
+      <div class="card">
+        <div class="tag">amor, de boa 😏</div>
+        <h2>Quando namorarmos, eu vou conseguir conquistar seu anel, amor? 🤣</h2>
+        <p id="ringQuestionText">Pensa bem antes de responder, hein.</p>
+        <div class="question-btn-row">
+          <button class="btn-primary" id="btnRingSim">Sim 😈</button>
+          <button class="btn-primary btn-nao" id="btnRingNao">Não ❌</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOADING -->
+    <section id="loading" class="screen">
+      <div class="card">
+        <div class="tag">processando</div>
+        <h2>Preparando sua surpresa...</h2>
+        <div class="loading-ring-wrap">
+          <svg class="loading-svg" viewBox="0 0 80 80">
+            <circle class="ring-bg" cx="40" cy="40" r="32"/>
+            <circle class="ring-fg" id="loadingRing" cx="40" cy="40" r="32"
+              stroke-dasharray="201" stroke-dashoffset="201"
+              stroke="url(#ringGrad)"/>
+          </svg>
+        </div>
+        <div class="loading-percent" id="loadingPercent">0%</div>
+        <p id="loadingText"></p>
+      </div>
+    </section>
+
+    <!-- SENHA -->
+    <section id="password" class="screen">
+      <div class="card">
+        <div class="tag">última barreira</div>
+        <h2>Uma senha. Só uma.</h2>
+        <p id="passwordText">Talvez nem exista. Quem sabe.</p>
+        <input id="passwordInput" placeholder="Tente aí..." autocomplete="off" />
+        <button class="btn-primary" onclick="checkPassword()">Confirmar</button>
+      </div>
+    </section>
+
+    <!-- FINAL -->
+    <section id="final" class="screen final-screen">
+      <div class="final-card">
+        <span class="moon">🌙</span>
+        <div class="heart-pulse" id="bigHeart">❤️</div>
+        <p id="storyText"></p>
+        <button class="btn-ghost" id="nextFinalBtn" onclick="nextFinalMessage()">Próxima</button>
+        <button class="btn-restart" id="restartBtn" onclick="restartGame()">Jogar de novo</button>
+      </div>
+    </section>
+
+    <!-- PERGUNTA -->
+    <section id="question" class="screen">
+      <div class="card">
+        <div class="tag">importante 🔥</div>
+        <h2>agora saindo dessa melosidade, eu mereço ppk amor?</h2>
+        <div class="question-btn-row">
+          <button class="btn-primary" id="btnSim" onclick="answerSim()">Sim ✅</button>
+          <button class="btn-primary btn-nao" id="btnNao">Não ❌</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESPOSTA FINAL -->
+    <section id="finalAnswer" class="screen final-screen">
+      <div class="final-card">
+        <div class="heart-pulse">🤣</div>
+        <p id="finalAnswerText">eeeeeeeeeh kkkkkkkkkkk 🤣🥳</p>
+        <button class="btn-restart" onclick="restartGame()">Jogar de novo</button>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
